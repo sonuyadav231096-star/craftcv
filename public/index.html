@@ -2,11 +2,1433 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>CraftCV</title>
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CraftCV — Build Your Perfect Resume</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Syne:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3a;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --gold: #f0c040;
+    --text: #e8e8f0;
+    --muted: #6666888;
+    --muted2: #555570;
+    --white: #ffffff;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.03em;
+  }
+  .logo span { color: var(--accent); }
+
+  .nav-links {
+    display: flex; gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted2);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  .header-cta {
+    display: flex; gap: 0.75rem;
+  }
+
+  .btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.4rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+  .btn-primary:hover { background: #5a52ee; transform: translateY(-1px); }
+  .btn-large {
+    padding: 0.9rem 2.2rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+  }
+  .btn-gold {
+    background: var(--gold);
+    color: #111;
+  }
+  .btn-gold:hover { background: #e0b030; transform: translateY(-1px); }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    min-height: calc(100vh - 68px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 5rem 2rem;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(108,99,255,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255,101,132,0.08) 0%, transparent 50%);
+  }
+
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(108,99,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,99,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .hero-content {
+    position: relative; z-index: 1;
+    max-width: 820px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(108,99,255,0.12);
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 100px;
+    padding: 0.35rem 1rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #a59fff;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease forwards;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: var(--white);
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: #7777aa;
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+    font-weight: 400;
+    animation: fadeUp 0.6s ease 0.2s both;
+  }
+
+  .hero-actions {
+    display: flex; gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+
+  .hero-stats {
+    display: flex; gap: 3rem;
+    justify-content: center;
+    margin-top: 4rem;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .stat-num span { color: var(--accent); }
+  .stat-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted2);
+    margin-top: 0.3rem;
+  }
+
+  /* ===== TEMPLATES SECTION ===== */
+  .section {
+    padding: 6rem 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+  }
+  .section-sub {
+    color: #6666888;
+    font-size: 1rem;
+    max-width: 480px;
+    line-height: 1.7;
+  }
+
+  .templates-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    flex-wrap: wrap; gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .template-filters {
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+  }
+  .filter-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .template-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+    group: true;
+  }
+  .template-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(108,99,255,0.15);
+  }
+
+  .template-preview {
+    height: 220px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .preview-corporate {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  }
+  .preview-minimal {
+    background: linear-gradient(135deg, #f0f0f5 0%, #e0e0ef 100%);
+  }
+  .preview-creative {
+    background: linear-gradient(135deg, #2d1b69 0%, #4a1942 100%);
+  }
+  .preview-bold {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  }
+  .preview-elegant {
+    background: linear-gradient(135deg, #1c1207 0%, #2d1f0e 100%);
+  }
+  .preview-tech {
+    background: linear-gradient(135deg, #001a0e 0%, #002a18 100%);
+  }
+
+  .preview-mockup {
+    position: absolute;
+    inset: 15px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .mock-line {
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.2);
+  }
+  .mock-line.thick { height: 8px; width: 60%; background: rgba(255,255,255,0.4); }
+  .mock-line.short { width: 40%; }
+  .mock-line.accent { background: rgba(108,99,255,0.6); width: 80%; }
+  .mock-line.gold-line { background: rgba(240,192,64,0.6); width: 70%; }
+  .mock-line.green-line { background: rgba(64,240,128,0.5); width: 75%; }
+  .mock-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0; }
+  .mock-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 6px; flex: 1; }
+  .mock-sidebar { background: rgba(255,255,255,0.05); border-radius: 4px; }
+
+  .template-info {
+    padding: 1.25rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .template-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .template-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted2);
+    margin-top: 0.2rem;
+  }
+  .template-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 100px;
+    background: rgba(108,99,255,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(108,99,255,0.3);
+  }
+  .template-badge.free {
+    background: rgba(64,200,100,0.15);
+    color: #50e090;
+    border-color: rgba(64,200,100,0.3);
+  }
+
+  /* ===== BUILDER SECTION ===== */
+  .builder-section {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .builder-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 600px;
+    gap: 0;
+  }
+
+  .builder-form {
+    padding: 3.5rem;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    max-height: 700px;
+  }
+
+  .builder-preview-panel {
+    padding: 3.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+  .form-section-sub {
+    color: var(--muted2);
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted2);
+    margin-bottom: 0.5rem;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    outline: none;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(108,99,255,0.1);
+  }
+  textarea { resize: vertical; min-height: 100px; }
+  input::placeholder, textarea::placeholder { color: var(--muted2); }
+  select option { background: var(--surface2); }
+
+  .form-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  .form-tab {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+  .form-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* LIVE PREVIEW CARD */
+  .preview-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.75rem;
+    flex: 1;
+  }
+
+  .preview-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.25rem;
+  }
+  .preview-title {
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+  }
+  .preview-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--muted2);
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .preview-contact span {
+    display: flex; align-items: center; gap: 0.3rem;
+  }
+  .preview-section-head {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 1.25rem 0 0.75rem;
+  }
+  .preview-summary {
+    font-size: 0.82rem;
+    color: #8888aa;
+    line-height: 1.7;
+  }
+  .preview-placeholder {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    margin: 0.4rem 0;
+  }
+  .preview-placeholder.short { width: 60%; }
+  .preview-placeholder.medium { width: 80%; }
+
+  .preview-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  /* ===== PRICING SECTION ===== */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .pricing-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem;
+    position: relative;
+    transition: all 0.3s;
+  }
+  .pricing-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+  }
+  .pricing-card.featured {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, rgba(108,99,255,0.08) 0%, var(--surface) 100%);
+  }
+  .pricing-card.featured::before {
+    content: 'MOST POPULAR';
+    position: absolute;
+    top: -12px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: white;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 0.3rem 0.9rem;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .plan-name {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted2);
+    margin-bottom: 0.75rem;
+  }
+  .plan-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .plan-price sub {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--muted2);
+    vertical-align: baseline;
+    margin-left: 0.2rem;
+  }
+  .plan-period {
+    font-size: 0.78rem;
+    color: var(--muted2);
+    margin-bottom: 1.5rem;
+  }
+  .plan-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.5rem 0;
+  }
+  .plan-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .plan-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    color: #8888aa;
+  }
+  .plan-features li::before {
+    content: '✓';
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.75rem;
+    min-width: 16px;
+  }
+  .plan-features li.muted::before { content: '—'; color: var(--muted2); }
+
+  /* ===== FEATURES GRID ===== */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    transition: all 0.3s;
+  }
+  .feature-card:hover {
+    border-color: rgba(108,99,255,0.4);
+    background: rgba(108,99,255,0.04);
+  }
+  .feature-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: rgba(108,99,255,0.12);
+    border: 1px solid rgba(108,99,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 1.25rem;
+  }
+  .feature-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+  .feature-desc {
+    font-size: 0.83rem;
+    color: #6666888;
+    line-height: 1.65;
+  }
+
+  /* ===== PAYMENT MODAL ===== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 90%;
+    max-width: 440px;
+    transform: translateY(20px);
+    transition: transform 0.3s;
+  }
+  .modal-overlay.active .modal { transform: translateY(0); }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+  .modal-sub {
+    font-size: 0.85rem;
+    color: var(--muted2);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .modal-plan-info {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  .modal-plan-name { font-size: 0.85rem; font-weight: 700; color: var(--white); }
+  .modal-plan-price { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--accent); }
+
+  .modal-actions {
+    display: flex; gap: 0.75rem;
+  }
+  .modal-actions .btn { flex: 1; justify-content: center; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 2rem; right: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    display: flex; align-items: center; gap: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text);
+    z-index: 2000;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.3s;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-icon { font-size: 1.1rem; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--white);
+  }
+  .footer-logo span { color: var(--accent); }
+  .footer-copy {
+    font-size: 0.78rem;
+    color: var(--muted2);
+  }
+  .footer-links {
+    display: flex; gap: 1.5rem; list-style: none;
+  }
+  .footer-links a {
+    font-size: 0.78rem;
+    color: var(--muted2);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--accent); }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .pricing-grid, .features-grid { grid-template-columns: 1fr; }
+    .builder-layout { grid-template-columns: 1fr; }
+    .builder-form { border-right: none; border-bottom: 1px solid var(--border); max-height: none; }
+    .form-row { grid-template-columns: 1fr; }
+    .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+    header { padding: 0 1.25rem; }
+    .section { padding: 4rem 1.25rem; }
+  }
+</style>
 </head>
 <body>
-<h1>CraftCV - Coming Soon</h1>
-<script src="app.js"></script>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Craft<span>CV</span></div>
+  <ul class="nav-links">
+    <li><a href="#templates">Templates</a></li>
+    <li><a href="#builder">Builder</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+  </ul>
+  <div class="header-cta">
+    <button class="btn btn-ghost" onclick="showToast('Login coming soon!', '🔐')">Login</button>
+    <button class="btn btn-primary" onclick="document.getElementById('builder').scrollIntoView({behavior:'smooth'})">Get Started</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="badge-dot"></div>
+      Now live — Build your resume in minutes
+    </div>
+    <h1>Your Resume.<br><em>Reinvented.</em></h1>
+    <p class="hero-sub">Professional CV builder with beautiful templates. Stand out from the crowd and land your dream job faster.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-large" onclick="document.getElementById('builder').scrollIntoView({behavior:'smooth'})">Build My CV Free</button>
+      <button class="btn btn-ghost btn-large" onclick="document.getElementById('templates').scrollIntoView({behavior:'smooth'})">See Templates</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">50<span>+</span></div>
+        <div class="stat-label">Templates</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">10<span>K+</span></div>
+        <div class="stat-label">CVs Created</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">4.9<span>★</span></div>
+        <div class="stat-label">User Rating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEMPLATES -->
+<section class="section" id="templates">
+  <div class="templates-header">
+    <div>
+      <div class="section-label">Templates</div>
+      <div class="section-title">Pick Your Style</div>
+      <div class="section-sub">From clean & minimal to bold & creative — every template is ATS-friendly and recruiter-approved.</div>
+    </div>
+    <div class="template-filters">
+      <button class="filter-btn active" onclick="filterTemplates('all', this)">All</button>
+      <button class="filter-btn" onclick="filterTemplates('free', this)">Free</button>
+      <button class="filter-btn" onclick="filterTemplates('corporate', this)">Corporate</button>
+      <button class="filter-btn" onclick="filterTemplates('creative', this)">Creative</button>
+    </div>
+  </div>
+
+  <div class="templates-grid" id="templatesGrid">
+    <div class="template-card" data-cat="corporate" onclick="selectTemplate('Corporate Pro')">
+      <div class="template-preview preview-corporate">
+        <div class="preview-mockup">
+          <div class="mock-line thick"></div>
+          <div class="mock-line short"></div>
+          <div class="mock-divider"></div>
+          <div class="mock-grid">
+            <div class="mock-sidebar"></div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="mock-line accent"></div>
+              <div class="mock-line"></div>
+              <div class="mock-line short"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="template-info">
+        <div>
+          <div class="template-name">Corporate Pro</div>
+          <div class="template-tag">Corporate · ATS Optimized</div>
+        </div>
+        <span class="template-badge">Pro</span>
+      </div>
+    </div>
+
+    <div class="template-card" data-cat="creative free" onclick="selectTemplate('Clean Minimal')">
+      <div class="template-preview preview-minimal">
+        <div class="preview-mockup" style="background:rgba(0,0,0,0.06); border-color:rgba(0,0,0,0.1);">
+          <div class="mock-line thick" style="background:rgba(0,0,0,0.3)"></div>
+          <div class="mock-line short" style="background:rgba(108,99,255,0.5)"></div>
+          <div class="mock-divider" style="background:rgba(0,0,0,0.1)"></div>
+          <div class="mock-line" style="background:rgba(0,0,0,0.15)"></div>
+          <div class="mock-line medium" style="background:rgba(0,0,0,0.1)"></div>
+          <div class="mock-line short" style="background:rgba(0,0,0,0.1)"></div>
+        </div>
+      </div>
+      <div class="template-info">
+        <div>
+          <div class="template-name">Clean Minimal</div>
+          <div class="template-tag">Minimal · All Industries</div>
+        </div>
+        <span class="template-badge free">Free</span>
+      </div>
+    </div>
+
+    <div class="template-card" data-cat="creative" onclick="selectTemplate('Creative Dark')">
+      <div class="template-preview preview-creative">
+        <div class="preview-mockup">
+          <div class="mock-line thick"></div>
+          <div class="mock-line accent"></div>
+          <div class="mock-divider"></div>
+          <div class="mock-line short"></div>
+          <div class="mock-line"></div>
+          <div class="mock-line medium" style="background:rgba(255,101,132,0.4)"></div>
+        </div>
+      </div>
+      <div class="template-info">
+        <div>
+          <div class="template-name">Creative Dark</div>
+          <div class="template-tag">Creative · Design Roles</div>
+        </div>
+        <span class="template-badge">Pro</span>
+      </div>
+    </div>
+
+    <div class="template-card" data-cat="corporate free" onclick="selectTemplate('Bold Executive')">
+      <div class="template-preview preview-bold">
+        <div class="preview-mockup">
+          <div class="mock-line thick" style="background:rgba(255,255,255,0.5)"></div>
+          <div class="mock-line gold-line"></div>
+          <div class="mock-divider"></div>
+          <div class="mock-line"></div>
+          <div class="mock-line medium"></div>
+          <div class="mock-line short"></div>
+        </div>
+      </div>
+      <div class="template-info">
+        <div>
+          <div class="template-name">Bold Executive</div>
+          <div class="template-tag">Executive · Senior Roles</div>
+        </div>
+        <span class="template-badge free">Free</span>
+      </div>
+    </div>
+
+    <div class="template-card" data-cat="corporate" onclick="selectTemplate('Elegant Gold')">
+      <div class="template-preview preview-elegant">
+        <div class="preview-mockup">
+          <div class="mock-line thick"></div>
+          <div class="mock-line gold-line"></div>
+          <div class="mock-divider"></div>
+          <div class="mock-grid">
+            <div class="mock-sidebar" style="background:rgba(240,192,64,0.1)"></div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="mock-line gold-line"></div>
+              <div class="mock-line short"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="template-info">
+        <div>
+          <div class="template-name">Elegant Gold</div>
+          <div class="template-tag">Premium · Finance & Law</div>
+        </div>
+        <span class="template-badge">Pro</span>
+      </div>
+    </div>
+
+    <div class="template-card" data-cat="creative" onclick="selectTemplate('Tech Modern')">
+      <div class="template-preview preview-tech">
+        <div class="preview-mockup">
+          <div class="mock-line thick"></div>
+          <div class="mock-line green-line"></div>
+          <div class="mock-divider"></div>
+          <div class="mock-line"></div>
+          <div class="mock-line medium green-line"></div>
+          <div class="mock-line short"></div>
+        </div>
+      </div>
+      <div class="template-info">
+        <div>
+          <div class="template-name">Tech Modern</div>
+          <div class="template-tag">Tech · Engineering & IT</div>
+        </div>
+        <span class="template-badge">Pro</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUILDER -->
+<section id="builder" class="builder-section">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div style="padding:3.5rem 2.5rem 0;">
+      <div class="section-label">Live Builder</div>
+      <div class="section-title">Start Building</div>
+    </div>
+    <div class="builder-layout">
+      <div class="builder-form">
+        <div class="form-tabs">
+          <div class="form-tab active" onclick="switchTab('personal', this)">Personal</div>
+          <div class="form-tab" onclick="switchTab('experience', this)">Experience</div>
+          <div class="form-tab" onclick="switchTab('education', this)">Education</div>
+          <div class="form-tab" onclick="switchTab('skills', this)">Skills</div>
+        </div>
+
+        <!-- Personal Tab -->
+        <div class="tab-content active" id="tab-personal">
+          <p class="form-section-sub">Start with your basic information.</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" id="firstName" placeholder="Sonu" oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" id="lastName" placeholder="Kumar" oninput="updatePreview()">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Professional Title</label>
+            <input type="text" id="jobTitle" placeholder="Operations Manager" oninput="updatePreview()">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="email" placeholder="sonu@email.com" oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="phone" placeholder="+91 98765 43210" oninput="updatePreview()">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" id="city" placeholder="Patna, Bihar" oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+              <label>LinkedIn</label>
+              <input type="text" id="linkedin" placeholder="linkedin.com/in/..." oninput="updatePreview()">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Professional Summary</label>
+            <textarea id="summary" placeholder="Experienced operations professional with 5+ years in last-mile logistics..." oninput="updatePreview()"></textarea>
+          </div>
+        </div>
+
+        <!-- Experience Tab -->
+        <div class="tab-content" id="tab-experience">
+          <p class="form-section-sub">Add your work experience. Most recent first.</p>
+          <div class="form-group">
+            <label>Job Title</label>
+            <input type="text" id="exp-title" placeholder="Sub-Zonal Manager">
+          </div>
+          <div class="form-group">
+            <label>Company</label>
+            <input type="text" id="exp-company" placeholder="Shadowfax Technologies">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Start Date</label>
+              <input type="text" id="exp-start" placeholder="Jan 2022">
+            </div>
+            <div class="form-group">
+              <label>End Date</label>
+              <input type="text" id="exp-end" placeholder="Dec 2025">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Key Achievements</label>
+            <textarea id="exp-desc" placeholder="• Managed operations across 50+ pincodes&#10;• Improved delivery success rate by 15%&#10;• Led a team of 200+ delivery partners"></textarea>
+          </div>
+          <button class="btn btn-ghost" style="width:100%" onclick="showToast('Experience saved!', '💼')">+ Add Experience</button>
+        </div>
+
+        <!-- Education Tab -->
+        <div class="tab-content" id="tab-education">
+          <p class="form-section-sub">Your educational background.</p>
+          <div class="form-group">
+            <label>Degree / Course</label>
+            <input type="text" id="edu-degree" placeholder="B.Com / Data Science Diploma">
+          </div>
+          <div class="form-group">
+            <label>Institution</label>
+            <input type="text" id="edu-school" placeholder="Masai School / University">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Year</label>
+              <input type="text" id="edu-year" placeholder="2025 - Present">
+            </div>
+            <div class="form-group">
+              <label>Grade / Score</label>
+              <input type="text" id="edu-grade" placeholder="8.5 CGPA / 80%">
+            </div>
+          </div>
+          <button class="btn btn-ghost" style="width:100%" onclick="showToast('Education saved!', '🎓')">+ Add Education</button>
+        </div>
+
+        <!-- Skills Tab -->
+        <div class="tab-content" id="tab-skills">
+          <p class="form-section-sub">Add your key skills separated by commas.</p>
+          <div class="form-group">
+            <label>Technical Skills</label>
+            <textarea id="tech-skills" placeholder="Python, SQL, Excel, Power BI, Data Analysis, Machine Learning"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Soft Skills</label>
+            <textarea id="soft-skills" placeholder="Team Leadership, Operations Management, Problem Solving, Communication"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Languages</label>
+            <input type="text" id="languages" placeholder="Hindi, English, Bhojpuri">
+          </div>
+        </div>
+      </div>
+
+      <div class="builder-preview-panel">
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted2);">Live Preview</div>
+
+        <div class="preview-card" id="cvPreview">
+          <div class="preview-name" id="prev-name">Your Name</div>
+          <div class="preview-title" id="prev-title">Professional Title</div>
+          <div class="preview-contact">
+            <span id="prev-email">📧 email@example.com</span>
+            <span id="prev-phone">📱 +91 XXXXX XXXXX</span>
+            <span id="prev-city">📍 City</span>
+          </div>
+          <div class="preview-section-head">Summary</div>
+          <div class="preview-summary" id="prev-summary">Your professional summary will appear here as you type...</div>
+          <div class="preview-section-head">Experience</div>
+          <div class="preview-placeholder medium"></div>
+          <div class="preview-placeholder"></div>
+          <div class="preview-placeholder short"></div>
+          <div class="preview-section-head">Education</div>
+          <div class="preview-placeholder medium"></div>
+          <div class="preview-placeholder short"></div>
+        </div>
+
+        <div class="preview-actions">
+          <button class="btn btn-primary" style="flex:1" onclick="openPaymentModal('pro')">Download PDF — ₹199</button>
+          <button class="btn btn-ghost" onclick="showToast('Share link copied!', '🔗')">Share</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="section-label">Why CraftCV</div>
+  <div class="section-title">Everything You Need</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-name">Build in Minutes</div>
+      <div class="feature-desc">Intuitive step-by-step form. Fill your details, pick a template, and your professional CV is ready instantly.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-name">ATS Optimized</div>
+      <div class="feature-desc">All templates are tested against major Applicant Tracking Systems used by top Indian companies like Flipkart, Amazon, and Infosys.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <div class="feature-name">Mobile Friendly</div>
+      <div class="feature-desc">Build and update your CV from your phone. Perfect for on-the-go job hunting.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <div class="feature-name">Secure Payments</div>
+      <div class="feature-desc">Pay securely via Razorpay. UPI, cards, net banking — all accepted. Get your PDF instantly after payment.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎨</div>
+      <div class="feature-name">50+ Templates</div>
+      <div class="feature-desc">From fresher to senior executive — we have templates for every stage of your career and every industry.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">♾️</div>
+      <div class="feature-name">Unlimited Edits</div>
+      <div class="feature-desc">Update your CV as many times as you want. Your data is saved — just come back, edit, and re-download.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div style="text-align:center; max-width:520px; margin:0 auto;">
+    <div class="section-label">Pricing</div>
+    <div class="section-title">Simple, Honest Pricing</div>
+    <div class="section-sub" style="margin:0 auto;">No subscriptions. No hidden fees. Pay only when you're happy with your CV.</div>
+  </div>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">₹0</div>
+      <div class="plan-period">Forever free</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>2 Free templates</li>
+        <li>Live preview</li>
+        <li>Basic sections</li>
+        <li class="muted">PDF download</li>
+        <li class="muted">Premium templates</li>
+        <li class="muted">Cover letter</li>
+      </ul>
+      <button class="btn btn-ghost" style="width:100%" onclick="document.getElementById('builder').scrollIntoView({behavior:'smooth'})">Start Free</button>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="plan-name">Professional</div>
+      <div class="plan-price">₹199</div>
+      <div class="plan-period">One-time payment</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>All 50+ templates</li>
+        <li>PDF download</li>
+        <li>ATS score check</li>
+        <li>1 cover letter</li>
+        <li>30-day edit access</li>
+        <li class="muted">Unlimited downloads</li>
+      </ul>
+      <button class="btn btn-primary" style="width:100%" onclick="openPaymentModal('pro')">Get Started — ₹199</button>
+    </div>
+
+    <div class="pricing-card">
+      <div class="plan-name">Premium</div>
+      <div class="plan-price">₹499</div>
+      <div class="plan-period">One-time payment</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Everything in Pro</li>
+        <li>Unlimited downloads</li>
+        <li>3 cover letters</li>
+        <li>LinkedIn optimization</li>
+        <li>1-year edit access</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="btn btn-gold" style="width:100%" onclick="openPaymentModal('premium')">Get Premium — ₹499</button>
+    </div>
+  </div>
+</section>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal">
+    <div class="modal-title">Complete Your Order</div>
+    <div class="modal-sub">Secure payment powered by Razorpay. Get your PDF instantly after payment.</div>
+    <div class="modal-plan-info">
+      <div>
+        <div class="modal-plan-name" id="modalPlanName">Professional Plan</div>
+        <div style="font-size:0.75rem;color:var(--muted2);margin-top:0.2rem;">One-time payment • Instant download</div>
+      </div>
+      <div class="modal-plan-price" id="modalPlanPrice">₹199</div>
+    </div>
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="payName" placeholder="Sonu Kumar">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="payEmail" placeholder="sonu@email.com">
+    </div>
+    <div class="modal-actions" style="margin-top:1.5rem">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="initiatePayment()">Pay Now 🔐</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span id="toastMsg">Done!</span>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Craft<span>CV</span></div>
+  <div class="footer-copy">© 2025 CraftCV. Made with ❤️ in India.</div>
+  <ul class="footer-links">
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Terms</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+</footer>
+
+<script>
+  // ===== LIVE PREVIEW =====
+  function updatePreview() {
+    const first = document.getElementById('firstName').value;
+    const last = document.getElementById('lastName').value;
+    const title = document.getElementById('jobTitle').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const city = document.getElementById('city').value;
+    const summary = document.getElementById('summary').value;
+
+    document.getElementById('prev-name').textContent = (first || last) ? `${first} ${last}`.trim() : 'Your Name';
+    document.getElementById('prev-title').textContent = title || 'Professional Title';
+    document.getElementById('prev-email').textContent = '📧 ' + (email || 'email@example.com');
+    document.getElementById('prev-phone').textContent = '📱 ' + (phone || '+91 XXXXX XXXXX');
+    document.getElementById('prev-city').textContent = '📍 ' + (city || 'City');
+    document.getElementById('prev-summary').textContent = summary || 'Your professional summary will appear here as you type...';
+  }
+
+  // ===== TABS =====
+  function switchTab(tabName, el) {
+    document.querySelectorAll('.form-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-' + tabName).classList.add('active');
+  }
+
+  // ===== TEMPLATE FILTER =====
+  function filterTemplates(cat, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cards = document.querySelectorAll('.template-card');
+    cards.forEach(card => {
+      const cats = card.dataset.cat || '';
+      card.style.display = (cat === 'all' || cats.includes(cat)) ? '' : 'none';
+    });
+  }
+
+  // ===== TEMPLATE SELECT =====
+  function selectTemplate(name) {
+    showToast(`"${name}" selected! Start building below.`, '🎨');
+    document.getElementById('builder').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ===== MODAL =====
+  let currentPlan = 'pro';
+  function openPaymentModal(plan) {
+    currentPlan = plan;
+    const isPremium = plan === 'premium';
+    document.getElementById('modalPlanName').textContent = isPremium ? 'Premium Plan' : 'Professional Plan';
+    document.getElementById('modalPlanPrice').textContent = isPremium ? '₹499' : '₹199';
+    document.getElementById('paymentModal').classList.add('active');
+  }
+  function closeModal() {
+    document.getElementById('paymentModal').classList.remove('active');
+  }
+  document.getElementById('paymentModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // ===== RAZORPAY PAYMENT =====
+  function initiatePayment() {
+    const name = document.getElementById('payName').value;
+    const email = document.getElementById('payEmail').value;
+    if (!name || !email) {
+      showToast('Please enter name and email', '⚠️');
+      return;
+    }
+    const amount = currentPlan === 'premium' ? 49900 : 19900;
+    const options = {
+      key: 'YOUR_RAZORPAY_KEY', // Replace with actual key
+      amount: amount,
+      currency: 'INR',
+      name: 'CraftCV',
+      description: currentPlan === 'premium' ? 'Premium Plan' : 'Professional Plan',
+      handler: function(response) {
+        closeModal();
+        showToast('Payment successful! Preparing your PDF...', '🎉');
+        setTimeout(() => showToast('CV downloaded successfully!', '📄'), 3000);
+      },
+      prefill: { name: name, email: email },
+      theme: { color: '#6c63ff' },
+      modal: { ondismiss: function() { showToast('Payment cancelled', '❌'); } }
+    };
+    try {
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch(e) {
+      showToast('Razorpay loading... Please try again', '⚠️');
+    }
+  }
+
+  // ===== TOAST =====
+  let toastTimer;
+  function showToast(msg, icon = '✅') {
+    clearTimeout(toastTimer);
+    document.getElementById('toastMsg').textContent = msg;
+    document.getElementById('toastIcon').textContent = icon;
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+</script>
+
+<!-- Razorpay SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 </html>
