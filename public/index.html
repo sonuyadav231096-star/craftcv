@@ -1389,34 +1389,70 @@
   });
 
   // ===== RAZORPAY PAYMENT =====
-  function initiatePayment() {
+  async function initiatePayment() {
     const name = document.getElementById('payName').value;
     const email = document.getElementById('payEmail').value;
     if (!name || !email) {
       showToast('Please enter name and email', '⚠️');
       return;
     }
-    const amount = currentPlan === 'premium' ? 49900 : 19900;
-    const options = {
-      key: 'YOUR_RAZORPAY_KEY', // Replace with actual key
-      amount: amount,
-      currency: 'INR',
-      name: 'CraftCV',
-      description: currentPlan === 'premium' ? 'Premium Plan' : 'Professional Plan',
-      handler: function(response) {
-        closeModal();
-        showToast('Payment successful! Preparing your PDF...', '🎉');
-        setTimeout(() => showToast('CV downloaded successfully!', '📄'), 3000);
-      },
-      prefill: { name: name, email: email },
-      theme: { color: '#6c63ff' },
-      modal: { ondismiss: function() { showToast('Payment cancelled', '❌'); } }
-    };
+
     try {
+      // 1. Get Razorpay Key
+      const configRes = await fetch('/api/get-config');
+      const { razorpay_key_id } = await configRes.json();
+
+      // 2. Create Order on Backend
+      const orderRes = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: currentPlan })
+      });
+      const order = await orderRes.json();
+
+      if (!order.id) {
+        showToast('Failed to create order', '❌');
+        return;
+      }
+
+      const options = {
+        key: razorpay_key_id,
+        amount: order.amount,
+        currency: order.currency,
+        name: 'CraftCV',
+        description: currentPlan === 'premium' ? 'Premium Plan' : 'Professional Plan',
+        order_id: order.id,
+        handler: async function(response) {
+          // 3. Verify Payment on Backend
+          const verifyRes = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            })
+          });
+          const verifyData = await verifyRes.json();
+
+          if (verifyData.status === 'success') {
+            closeModal();
+            showToast('Payment successful! Preparing your PDF...', '🎉');
+            setTimeout(() => showToast('CV downloaded successfully!', '📄'), 3000);
+          } else {
+            showToast('Payment verification failed', '❌');
+          }
+        },
+        prefill: { name: name, email: email },
+        theme: { color: '#6c63ff' },
+        modal: { ondismiss: function() { showToast('Payment cancelled', '❌'); } }
+      };
+
       const rzp = new Razorpay(options);
       rzp.open();
     } catch(e) {
-      showToast('Razorpay loading... Please try again', '⚠️');
+      console.error('Payment error:', e);
+      showToast('Error initiating payment', '⚠️');
     }
   }
 
